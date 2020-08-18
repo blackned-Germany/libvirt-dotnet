@@ -31,7 +31,7 @@ namespace Libvirt.Types
     /// Structure for domain memory statistics
     ///</summary>
     [StructLayout(LayoutKind.Sequential)]
-    public class VirDomainMemoryStat
+    public struct VirDomainMemoryStat
     {
         /// <summary>
         /// Tag
@@ -41,7 +41,7 @@ namespace Libvirt.Types
         /// <summary>
         /// Value
         /// </summary>
-        [MarshalAs(UnmanagedType.I8)]
+        [MarshalAs(UnmanagedType.U8)]
         public ulong val;
     }
 }
