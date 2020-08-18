@@ -73,10 +73,11 @@ namespace Libvirt
         {
             VirDomainBlockStatsStruct statStruct = new VirDomainBlockStatsStruct();
             IntPtr statStructPtr = Marshal.AllocHGlobal(Marshal.SizeOf(statStruct));
-            Marshal.StructureToPtr(statStruct, statStructPtr, true);
+            Marshal.StructureToPtr(statStruct, statStructPtr, false);
             int result = BlockStats(dom, path, statStructPtr, Marshal.SizeOf(statStruct));
             Marshal.PtrToStructure(statStructPtr, statStruct);
             stats = statStruct;
+            Marshal.DestroyStructure(statStructPtr, typeof(VirDomainBlockStatsStruct));
             Marshal.FreeHGlobal(statStructPtr);
             return result;
         }
