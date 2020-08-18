@@ -406,7 +406,7 @@ namespace Libvirt
             cbAndUserData.cbManaged = auth.cb;
             // Pass the structure as cbdata
             IntPtr cbAndUserDataPtr = Marshal.AllocHGlobal(Marshal.SizeOf(cbAndUserData));
-            Marshal.StructureToPtr(cbAndUserData, cbAndUserDataPtr, true);
+            Marshal.StructureToPtr(cbAndUserData, cbAndUserDataPtr, false);
 
             // Create the real ConnectAuth structure, it will call OpenAuthCallbackFromUnmanaged via callback
             VirConnectAuthUnmanaged connectAuth = new VirConnectAuthUnmanaged();
@@ -414,7 +414,10 @@ namespace Libvirt
             connectAuth.cb = OpenAuthCallbackFromUnmanaged;
             connectAuth.CredTypes = auth.CredTypes;
 
-            return OpenAuth(name, ref connectAuth, flags);
+            IntPtr ret = OpenAuth(name, ref connectAuth, flags);
+            Marshal.DestroyStructure(cbAndUserDataPtr, typeof(VirOpenAuthManagedCB));
+            Marshal.FreeHGlobal(cbAndUserDataPtr);
+            return ret;
         }
 
         private static int OpenAuthCallbackFromUnmanaged(IntPtr creds, uint ncreds, IntPtr cbdata)
@@ -464,6 +467,10 @@ namespace Libvirt
         /// <returns>0 in case of success, -1 in case of failure</returns>
         [DllImport("libvirt-0.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "virConnectRef")]
         public static extern int Ref(IntPtr conn);
+
+        // XXX TODO
+        [DllImport("libvirt-0.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "virConnectGetAllDomainStats")]
+        public static extern int GetAllDomainStats(IntPtr dom, uint stats, [Out]VirTypedParameter[] typedParams, uint nparams, int start_cpu, uint ncpus, uint flags);
 
         /// <summary>
         /// Determine if the connection to the hypervisor is still alive
