@@ -19,7 +19,7 @@ A NuGet package is now also available at https://www.nuget.org/packages/libvirt-
 Install-Package libvirt-dotnet
 ```
 
-The package is available for NETCoreApp 3.1, NETFramework 4.7, NETStandard 2.0. The dependcy on System.Drawing.Common is required for converting console screenshots to the specified destination format.
+The package is available for NETCoreApp 3.1, NETFramework 4.6.2, NETStandard 2.0. The dependcy on System.Drawing.Common is required for converting console screenshots to the specified destination format.
  
 # Documentation
  

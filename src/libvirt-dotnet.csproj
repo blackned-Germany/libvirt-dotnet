@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2;net47;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>netstandard2;net462;netcoreapp3.1</TargetFrameworks>
     <PackageId>libvirt-dotnet</PackageId>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <Authors>IDNT and the Livirt-dotnet contributors.</Authors>
@@ -24,8 +24,13 @@
     <PackageIconUrl />
     <ApplicationIcon>project.ico</ApplicationIcon>
     <Win32Resource />
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2|x64'">
     <PlatformTarget>x64</PlatformTarget>
     <Optimize>true</Optimize>
   </PropertyGroup>
@@ -33,6 +38,9 @@
     <DefineConstants>NETCORE;NETCORE3;NETCORE31</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2|x64'">
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
@@ -56,7 +64,7 @@
     <EmbeddedResource Include="Resources\SystemOffline.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
+    <PackageReference Include="System.Drawing.Common" Version="4.6.2" />
   </ItemGroup>
   <ItemGroup>
     <None Update="libvirt-dotnet.dll.config">

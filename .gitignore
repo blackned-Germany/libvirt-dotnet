@@ -83,3 +83,4 @@ _ReSharper*
 *.pdb
 Thumbs.db
 *.dll
+/.vscode
