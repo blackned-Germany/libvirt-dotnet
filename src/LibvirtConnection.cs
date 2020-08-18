@@ -27,6 +27,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,7 +59,7 @@ namespace Libvirt
 
             _lvEvents = new LibvirtEventLoop(this);
 
-            SetKeepAlive(LibvirtConfiguration.DEFAULT_LIBVIRT_KEEPALIVE_INTERVAL, 
+            SetKeepAlive(LibvirtConfiguration.DEFAULT_LIBVIRT_KEEPALIVE_INTERVAL,
                          LibvirtConfiguration.DEFAULT_LIBVIRT_KEEPALIVE_COUNT);
 
             Node = new LibvirtNode(this);
@@ -638,6 +639,66 @@ namespace Libvirt
         static public LibvirtConnection Open(string conn = @"qemu:///system", LibvirtConfiguration configuration = null)
         {
             return new LibvirtConnection(NativeVirConnect.Open(conn), configuration);
+        }
+
+        // manually extracted from https://libvirt.org/html/libvirt-libvirt-host.html#virConnectFlags
+        public enum Flags
+        {
+            CONNECT_RO = 1,
+            CONNECT_NO_ALIASES = 2,
+        }
+        internal struct AuthData
+        {
+            public string user;
+            public string password;
+        }
+
+        public static LibvirtConnection OpenAuth(string uri, string user, string password, Flags openFlags = 0)
+        {
+            // Fill a structure to pass username and password to callbacks
+            AuthData authData = new AuthData { user = user, password = password };
+            IntPtr authDataPtr = Marshal.AllocHGlobal(Marshal.SizeOf(authData));
+            Marshal.StructureToPtr(authData, authDataPtr, false);
+            // Fill a virConnectAuth structure
+            VirConnectAuth auth = new VirConnectAuth
+            {
+                cbdata = authDataPtr,               // The authData structure
+                cb = AuthCallback,                  // the method called by callbacks
+                CredTypes = new[]
+                                {
+                                    VirConnectCredentialType.VIR_CRED_AUTHNAME,
+                                    VirConnectCredentialType.VIR_CRED_PASSPHRASE
+                                }          // The list of credentials types
+            };
+
+            // Request the connection
+            LibvirtConnection conn = new LibvirtConnection(NativeVirConnect.OpenAuth(uri, ref auth, (int)openFlags));
+            Marshal.DestroyStructure(authDataPtr, typeof(AuthData));
+            Marshal.FreeHGlobal(authDataPtr);
+
+            return conn;
+        }
+        private static int AuthCallback(ref VirConnectCredential[] creds, IntPtr cbdata)
+        {
+            AuthData authData = (AuthData)Marshal.PtrToStructure(cbdata, typeof(AuthData));
+            for (int i = 0; i < creds.Length; i++)
+            {
+                VirConnectCredential cred = creds[i];
+                switch (cred.type)
+                {
+                    case VirConnectCredentialType.VIR_CRED_AUTHNAME:
+                        // Fill the user name
+                        cred.Result = authData.user;
+                        break;
+                    case VirConnectCredentialType.VIR_CRED_PASSPHRASE:
+                        // Fill the password
+                        cred.Result = authData.password;
+                        break;
+                    default:
+                        return -1;
+                }
+            }
+            return 0;
         }
 
         #endregion
