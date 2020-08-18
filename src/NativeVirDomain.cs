@@ -37,7 +37,7 @@ namespace Libvirt
 
         /// <summary>
         /// get statistics relating to CPU usage attributable to a single domain (in contrast to the statistics returned by virNodeGetCPUStats() for all processes on the host).
-        /// See https://libvirt.org/html/libvirt-libvirt-domain.html#virConnectGetAllDomainStats
+        /// See https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainGetCPUStats
         /// </summary>
         /// <param name="dom">pointer to the domain object</param>
         /// <param name="typedParams">array of parameters (returned)</param>
