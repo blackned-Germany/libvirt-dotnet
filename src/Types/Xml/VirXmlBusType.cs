@@ -38,5 +38,7 @@ namespace Libvirt
         SATA,
         [XmlEnum("ide")]
         IDE,
+        [XmlEnum("scsi")]
+        SCSI,
     }
 }
