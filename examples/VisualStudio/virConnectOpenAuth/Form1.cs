@@ -49,7 +49,7 @@ namespace virConnectOpenAuth
             // Fill a structure to pass username and password to callbacks
             AuthData authData = new AuthData { password = tbPassword.Text, user_name = tbUsername.Text };
             IntPtr authDataPtr = Marshal.AllocHGlobal(Marshal.SizeOf(authData));
-            Marshal.StructureToPtr(authData, authDataPtr, true);
+            Marshal.StructureToPtr(authData, authDataPtr, false);
             // Fill a virConnectAuth structure
             VirConnectAuth auth = new VirConnectAuth
             {
@@ -64,6 +64,7 @@ namespace virConnectOpenAuth
 
             // Request the connection
             IntPtr conn = NativeVirConnect.OpenAuth(tbURI.Text, ref auth, 0);
+            Marshal.DestroyStructure(authDataPtr, typeof(AuthData));
             Marshal.FreeHGlobal(authDataPtr);
 
             if (conn != IntPtr.Zero)
