@@ -42,7 +42,6 @@ namespace Libvirt
     {
         private readonly CancellationTokenSource _closeTokenSource = new CancellationTokenSource();
         private readonly LibvirtEventLoop _lvEvents;
-        private readonly Timer _metricsTicker;
 
         /// <summary>
         /// Creates a new connections
@@ -61,36 +60,7 @@ namespace Libvirt
 
             Node = new LibvirtNode(this);
 
-            _metricsTicker = new Timer(MetricsTickerCallback, null,
-                Configuration.MetricsIntervalSeconds * 1000,
-                Configuration.MetricsIntervalSeconds * 1000);
-
-            Configuration.OnMetricsIntervalChanged = (i) =>
-                _metricsTicker.Change(i == 0 ? Timeout.Infinite : i, i == 0 ? Timeout.Infinite : i);
         }
-
-        #region Metrics Tick
-        private readonly object _metricsTickEventLock = new object();
-        private event EventHandler _metricsTickEventHandler;
-
-        internal event EventHandler MetricsTick
-        {
-            add { lock (_metricsTickEventLock) _metricsTickEventHandler += value; }
-            remove { lock (_metricsTickEventLock) _metricsTickEventHandler -= value; }
-        }
-
-        private void MetricsTickerCallback(object state)
-        {
-            if (Thread.VolatileRead(ref _isDisposing) != 0)
-                return;
-
-            EventHandler handler;
-            lock (_metricsTickEventLock)
-                handler = _metricsTickEventHandler;
-
-            handler?.Invoke(this, EventArgs.Empty);
-        }
-        #endregion
 
         #region Connection
         public bool IsAlive { get { return NativeVirConnect.IsAlive(ConnectionPtr) == 1; } }
@@ -723,12 +693,6 @@ namespace Libvirt
 
             Trace.WriteLine("Disposing connection.");
 
-            if (_metricsTicker != null)
-            {
-                _metricsTicker.Change(Timeout.Infinite, Timeout.Infinite);
-                _metricsTicker.Dispose();
-            }
-
             _closeTokenSource.Cancel(false);
 
             foreach (var domain in _domainCache.Values)
@@ -745,8 +709,6 @@ namespace Libvirt
                 storagePool.Dispose();
 
             _storagePoolCache.Clear();
-
-            Node.Dispose();
 
             if (ConnectionPtr != IntPtr.Zero)
                 NativeVirConnect.Close(ConnectionPtr);
