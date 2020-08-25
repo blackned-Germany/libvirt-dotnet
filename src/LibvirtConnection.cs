@@ -59,16 +59,13 @@ namespace Libvirt
 
             _lvEvents = new LibvirtEventLoop(this);
 
-            SetKeepAlive(LibvirtConfiguration.DEFAULT_LIBVIRT_KEEPALIVE_INTERVAL,
-                         LibvirtConfiguration.DEFAULT_LIBVIRT_KEEPALIVE_COUNT);
-
             Node = new LibvirtNode(this);
 
             _metricsTicker = new Timer(MetricsTickerCallback, null,
                 Configuration.MetricsIntervalSeconds * 1000,
                 Configuration.MetricsIntervalSeconds * 1000);
 
-            Configuration.OnMetricsIntervalChanged = (i) => 
+            Configuration.OnMetricsIntervalChanged = (i) =>
                 _metricsTicker.Change(i == 0 ? Timeout.Infinite : i, i == 0 ? Timeout.Infinite : i);
         }
 
@@ -96,8 +93,8 @@ namespace Libvirt
         #endregion
 
         #region Connection
-        public bool IsAlive {  get { return NativeVirConnect.IsAlive(ConnectionPtr) == 1; } }
-        
+        public bool IsAlive { get { return NativeVirConnect.IsAlive(ConnectionPtr) == 1; } }
+
         public void SetKeepAlive(int interval, uint count)
         {
             if (NativeVirConnect.SetKeepAlive(ConnectionPtr, interval, count) < 0)
@@ -122,7 +119,7 @@ namespace Libvirt
         #endregion
 
         #region Domains
-        private ConcurrentDictionary<Guid, LibvirtDomain> _domainCache = 
+        private ConcurrentDictionary<Guid, LibvirtDomain> _domainCache =
                 new ConcurrentDictionary<Guid, LibvirtDomain>();
 
         /// <summary>
@@ -199,7 +196,7 @@ namespace Libvirt
 
             if (cachedOnly)
                 return null;
-            
+
             var domainPtr = NativeVirDomain.LookupByUUID(ConnectionPtr, uniqueId.ToUUID());
             if (domainPtr == IntPtr.Zero)
             {
@@ -313,7 +310,7 @@ namespace Libvirt
 
             LibvirtDomain domain = GetDomainByUniqueId(uniqueId,
                 cachedOnly: args.EventType == VirDomainEventType.VIR_DOMAIN_EVENT_UNDEFINED);
-            
+
             domain?.DispatchDomainEvent(args);
 
             EventHandler<VirDomainEventArgs> handler;
