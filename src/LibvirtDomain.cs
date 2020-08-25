@@ -225,6 +225,15 @@ namespace Libvirt
         #endregion
 
         #region Configuration
+        public XmlDocument GetXmlDescription(VirDomainXMLFlags flags)
+        {
+            string xmlText = NativeVirDomain.GetXMLDesc(_domainPtr, flags);
+            if (string.IsNullOrWhiteSpace(xmlText))
+                throw new LibvirtQueryException();
+            var doc = new XmlDocument();
+            doc.LoadXml(xmlText);
+            return doc;
+        }
         public XmlDocument XmlDescription
         {
             get
@@ -240,14 +249,10 @@ namespace Libvirt
                         if (_xmlDescription == null)
                         {
                             Trace.WriteLine($"Retrieving xml descriptor of domain {Name} (active={IsActive})");
-                            var flags = VirDomainXMLFlags.VIR_DOMAIN_XML_SECURE;
+                            VirDomainXMLFlags flags = 0;
                             if (!IsActive)
                                 flags |= VirDomainXMLFlags.VIR_DOMAIN_XML_INACTIVE;
-                            string xmlText = NativeVirDomain.GetXMLDesc(_domainPtr, flags);
-                            if (string.IsNullOrWhiteSpace(xmlText))
-                                throw new LibvirtQueryException();
-                            _xmlDescription = new XmlDocument();
-                            _xmlDescription.LoadXml(xmlText);
+                            _xmlDescription = GetXmlDescription(flags);
                         }
 
                         document = _xmlDescription;
