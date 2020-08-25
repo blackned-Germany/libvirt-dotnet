@@ -668,7 +668,7 @@ namespace Libvirt
 
         #region Internal 
 
-        internal IntPtr ConnectionPtr { get; private set; }
+        public IntPtr ConnectionPtr { get; private set; }
 
         internal CancellationToken ShutdownToken
         {

@@ -164,6 +164,11 @@ namespace Libvirt
 
         #region Properties
         /// <summary>
+        /// Ptr
+        /// </summary>
+        public IntPtr Ptr { get { return _domainPtr; } }
+
+        /// <summary>
         /// Unique domain identifier
         /// </summary>
         public Guid UniqueId { get; private set; }
