@@ -22,14 +22,13 @@
  * or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Libvirt
 {
     public class VirConstants
     {
         public const int VIR_TYPED_PARAM_FIELD_LENGTH = 80;
+        public const int VIR_NODE_MEMORY_STATS_FIELD_LENGTH = 80;
+        public const int VIR_NODE_CPU_STATS_FIELD_LENGTH = 80;
     }
 }
