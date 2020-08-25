@@ -23,16 +23,10 @@
  * limitations under the License.
  */
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Libvirt
 {
-    public class LibvirtNode : IDisposable
+    public class LibvirtNode
     {
         private readonly LibvirtConnection _connection;
 
@@ -51,41 +45,15 @@ namespace Libvirt
             get { return NativeVirNode.GetFreeMemory(_connection.ConnectionPtr); }
         }
 
-        private VirNodeInfo _virNodeInfo = null;
-
-        public VirNodeInfo GetInfo()
+        public VirNodeInfo Info
         {
-            if (_virNodeInfo == null && NativeVirNode.GetInfo(_connection.ConnectionPtr, (_virNodeInfo = new VirNodeInfo())) < 0)
+            get
             {
-                _virNodeInfo = null;
-                throw new LibvirtQueryException();
+                VirNodeInfo virNodeInfo = new VirNodeInfo();
+                if (NativeVirNode.GetInfo(_connection.ConnectionPtr, virNodeInfo) < 0)
+                    throw new LibvirtQueryException();
+                return virNodeInfo;
             }
-            return _virNodeInfo;
         }
-
-        public string CpuModelName { get { return GetInfo().Model; } }
-
-        public uint CpuFrequencyMhz { get { return GetInfo().Mhz; } }
-
-        public uint CpuSocketCount { get { return GetInfo().Sockets; } }
-
-        public uint CpuCores { get { return GetInfo().Cores; } }
-
-        public uint CpuThreads { get { return GetInfo().Threads; } }
-
-        public ulong MemoryBytes { get { return GetInfo().Memory; } }
-
-        #region IDisposable implementation
-        private Int32 _isDisposing = 0;
-
-        /// <summary>
-        /// Disposes the connection.
-        /// </summary>
-        public void Dispose()
-        {
-            if (Interlocked.CompareExchange(ref _isDisposing, 1, 0) == 1)
-                return;
-        }
-        #endregion
     }
 }
