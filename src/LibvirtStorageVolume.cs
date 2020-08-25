@@ -23,10 +23,8 @@
  * limitations under the License.
  */
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Xml;
 
@@ -72,44 +70,16 @@ namespace Libvirt
         public string Name {  get { return NativeVirStorageVol.GetName(_volumePtr); } }
 
         /// <summary>
-        /// Get storage pool state
+        /// Get storage volume info
         /// </summary>
-        public VirStorageVolType VolumeType
+        public VirStorageVolInfo Info
         {
             get
             {
                 VirStorageVolInfo volInfo = new VirStorageVolInfo();
                 if (NativeVirStorageVol.GetInfo(_volumePtr, ref volInfo) < 0)
                     throw new LibvirtQueryException();
-                return volInfo.Type;
-            }
-        }
-
-        /// <summary>
-        /// Get pool capacity
-        /// </summary>
-        public ulong CapacityInByte
-        {
-            get
-            {
-                VirStorageVolInfo volInfo = new VirStorageVolInfo();
-                if (NativeVirStorageVol.GetInfo(_volumePtr, ref volInfo) < 0)
-                    throw new LibvirtQueryException();
-                return volInfo.Capacity;
-            }
-        }
-
-        /// <summary>
-        /// Get allocated byte
-        /// </summary>
-        public ulong ByteAllocated
-        {
-            get
-            {
-                VirStorageVolInfo volInfo = new VirStorageVolInfo();
-                if (NativeVirStorageVol.GetInfo(_volumePtr, ref volInfo) < 0)
-                    throw new LibvirtQueryException();
-                return volInfo.Allocation;
+                return volInfo;
             }
         }
 

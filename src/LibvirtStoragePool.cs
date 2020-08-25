@@ -23,11 +23,9 @@
  * limitations under the License.
  */
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
@@ -72,58 +70,16 @@ namespace Libvirt
         public string Name {  get { return NativeVirStoragePool.GetName(_poolPtr); } }
 
         /// <summary>
-        /// Get storage pool state
+        /// Get storage pool info
         /// </summary>
-        public VirStoragePoolState State
+        public VirStoragePoolInfo Info
         {
             get
             {
                 VirStoragePoolInfo poolInfo = new VirStoragePoolInfo();
                 if (NativeVirStoragePool.GetInfo(_poolPtr, ref poolInfo) < 0)
                     throw new LibvirtQueryException();
-                return poolInfo.State;
-            }
-        }
-
-        /// <summary>
-        /// Get pool capacity
-        /// </summary>
-        public ulong CapacityInByte
-        {
-            get
-            {
-                VirStoragePoolInfo poolInfo = new VirStoragePoolInfo();
-                if (NativeVirStoragePool.GetInfo(_poolPtr, ref poolInfo) < 0)
-                    throw new LibvirtQueryException();
-                return poolInfo.Capacity;
-            }
-        }
-
-        /// <summary>
-        /// Get available free byte
-        /// </summary>
-        public ulong ByteAvailable
-        {
-            get
-            {
-                VirStoragePoolInfo poolInfo = new VirStoragePoolInfo();
-                if (NativeVirStoragePool.GetInfo(_poolPtr, ref poolInfo) < 0)
-                    throw new LibvirtQueryException();
-                return poolInfo.Available;
-            }
-        }
-
-        /// <summary>
-        /// Get allocated byte
-        /// </summary>
-        public ulong ByteAllocated
-        {
-            get
-            {
-                VirStoragePoolInfo poolInfo = new VirStoragePoolInfo();
-                if (NativeVirStoragePool.GetInfo(_poolPtr, ref poolInfo) < 0)
-                    throw new LibvirtQueryException();
-                return poolInfo.Allocation;
+                return poolInfo;
             }
         }
 
@@ -140,8 +96,6 @@ namespace Libvirt
         /// </summary>
         public string GetPath()
         {
-            var descr = XmlDescription;
-
             switch(DriverType)
             {
                 case "dir":
@@ -297,7 +251,7 @@ namespace Libvirt
 
         public override string ToString()
         {
-            return $"{typeof(LibvirtStoragePool).Name} name={Name}, uuid={UniqueId}, capacity={CapacityInByte}";
+            return $"{typeof(LibvirtStoragePool).Name} name={Name}, uuid={UniqueId}, capacity={Info.Capacity}";
         }
         #endregion
 
