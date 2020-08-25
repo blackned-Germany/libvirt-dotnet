@@ -41,7 +41,6 @@ namespace Libvirt
     public class LibvirtConnection : IDisposable
     {
         private readonly CancellationTokenSource _closeTokenSource = new CancellationTokenSource();
-        private readonly LibvirtEventLoop _lvEvents;
 
         /// <summary>
         /// Creates a new connections
@@ -55,8 +54,6 @@ namespace Libvirt
             ConnectionPtr = conn;
 
             Configuration = configuration ?? new LibvirtConfiguration();
-
-            _lvEvents = new LibvirtEventLoop(this);
 
             Node = new LibvirtNode(this);
 
@@ -80,6 +77,12 @@ namespace Libvirt
         }
 
         public LibvirtConfiguration Configuration { get; private set; }
+
+        public LibvirtConnection StartEventLoop()
+        {
+            new LibvirtEventLoop(this);
+            return this;
+        }
 
         #endregion
 
