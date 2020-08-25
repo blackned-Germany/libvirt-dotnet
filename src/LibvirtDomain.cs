@@ -177,7 +177,7 @@ namespace Libvirt
         /// <summary>
         /// True if the domain is currently active (running).
         /// </summary>
-        public bool IsActive { get { return NativeVirDomain.IsActive(_domainPtr) == 1;  } }
+        public bool IsActive { get { return NativeVirDomain.IsActive(_domainPtr) == 1; } }
 
         /// <summary>
         /// Retruns the hypervisors domain id or -1 if the domain is not running.
@@ -187,12 +187,12 @@ namespace Libvirt
         /// <summary>
         /// The domains human readable name
         /// </summary>
-        public string Name {  get { return NativeVirDomain.GetName(_domainPtr); } }
+        public string Name { get { return NativeVirDomain.GetName(_domainPtr); } }
 
         /// <summary>
         /// The type of operating system
         /// </summary>
-        public string OSType {  get { return NativeVirDomain.GetOSType(_domainPtr); } }
+        public string OSType { get { return NativeVirDomain.GetOSType(_domainPtr); } }
 
         /// <summary>
         /// Get domains runnig state
@@ -248,7 +248,7 @@ namespace Libvirt
                   : 0;
             }
         }
-        
+
         public VirDomainInfo GetInfo()
         {
             if (_virDomainInfo == null && NativeVirDomain.GetInfo(_domainPtr, (_virDomainInfo = new VirDomainInfo())) < 0)
@@ -300,7 +300,7 @@ namespace Libvirt
             {
                 XmlNodeList devNodeList = XmlDescription.SelectNodes("//domain/devices/disk");
 
-                XmlSerializer serializer = new XmlSerializer(typeof(VirXmlDomainDisk), defaultNamespace:"");
+                XmlSerializer serializer = new XmlSerializer(typeof(VirXmlDomainDisk), defaultNamespace: "");
                 foreach (XmlNode devNode in devNodeList)
                 {
                     using (var reader = new XmlNodeReader(devNode))
@@ -342,7 +342,7 @@ namespace Libvirt
             get
             {
                 XmlNodeList devNodeList = XmlDescription.SelectNodes("//domain/devices/interface[@type='network' or @type='bridge']");
-                XmlSerializer serializer = new XmlSerializer(typeof(VirXmlDomainNetInterface), defaultNamespace:"");
+                XmlSerializer serializer = new XmlSerializer(typeof(VirXmlDomainNetInterface), defaultNamespace: "");
                 foreach (XmlNode devNode in devNodeList)
                 {
                     using (var reader = new XmlNodeReader(devNode))
@@ -353,22 +353,22 @@ namespace Libvirt
 
         public string MachineType
         {
-            get { return XmlDescription.SelectSingleNode("//domain/os/type")?.Attributes["machine"].Value; }
+            get { return XmlDescription.SelectSingleNode("//domain/os/type")?.Attributes["machine"]?.Value; }
         }
 
         public string MachineArch
         {
-            get { return XmlDescription.SelectSingleNode("//domain/os/type")?.Attributes["arch"].Value; }
+            get { return XmlDescription.SelectSingleNode("//domain/os/type")?.Attributes["arch"]?.Value; }
         }
 
         public string OsInfoId
         {
-            get 
+            get
             {
                 var xmldoc = XmlDescription;
                 XmlNamespaceManager ns = new XmlNamespaceManager(xmldoc.NameTable);
                 ns.AddNamespace("libosinfo", VirXmlNamespace.LIBOSINFO);
-                return xmldoc.SelectSingleNode("//domain/metadata/libosinfo:libosinfo/libosinfo:os", ns)?.Attributes["id"].Value; 
+                return xmldoc.SelectSingleNode("//domain/metadata/libosinfo:libosinfo/libosinfo:os", ns)?.Attributes["id"].Value;
             }
         }
         #endregion
@@ -421,7 +421,7 @@ namespace Libvirt
             if (Thread.VolatileRead(ref _isDisposing) != 0)
                 return;
 
-            switch(args.EventType)
+            switch (args.EventType)
             {
                 case VirDomainEventType.VIR_DOMAIN_EVENT_SUSPENDED:
                 case VirDomainEventType.VIR_DOMAIN_EVENT_UNDEFINED:
@@ -437,7 +437,7 @@ namespace Libvirt
                             _cpuUtil.SetCpuCount(GetInfo().NrVirtCpu);
                         }
                     }
-                    
+
                     break;
             }
         }
