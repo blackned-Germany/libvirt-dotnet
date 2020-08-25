@@ -19,11 +19,7 @@
  * or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Libvirt
 {
@@ -41,37 +37,37 @@ namespace Libvirt
         /// <summary>
         /// Memory size in kilobytes
         /// </summary>
-        [MarshalAs(UnmanagedType.SysUInt)]
-        public ulong Memory;
+        [MarshalAs(UnmanagedType.U4)]
+        public uint Memory;
         /// <summary>
         /// The number of active CPUs.
         /// </summary>
-        [MarshalAs(UnmanagedType.SysUInt)]
+        [MarshalAs(UnmanagedType.U4)]
         public uint Cpus;
         /// <summary>
         /// Expected CPU frequency.
         /// </summary>
-        [MarshalAs(UnmanagedType.SysUInt)]
+        [MarshalAs(UnmanagedType.U4)]
         public uint Mhz;
         /// <summary>
         /// The number of NUMA cell, 1 for uniform mem access.
         /// </summary>
-        [MarshalAs(UnmanagedType.SysUInt)]
+        [MarshalAs(UnmanagedType.U4)]
         public uint Nodes;
         /// <summary>
         /// Number of CPU socket per node.
         /// </summary>
-        [MarshalAs(UnmanagedType.SysUInt)]
+        [MarshalAs(UnmanagedType.U4)]
         public uint Sockets;
         /// <summary>
         /// Number of core per socket.
         /// </summary>
-        [MarshalAs(UnmanagedType.SysUInt)]
+        [MarshalAs(UnmanagedType.U4)]
         public uint Cores;
         /// <summary>
         /// Number of threads per core.
         /// </summary>
-        [MarshalAs(UnmanagedType.SysUInt)]
+        [MarshalAs(UnmanagedType.U4)]
         public uint Threads;
     }
 }
