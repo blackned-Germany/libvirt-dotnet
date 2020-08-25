@@ -28,10 +28,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Xml;
 
 namespace Libvirt
 {
@@ -46,14 +43,12 @@ namespace Libvirt
         /// Creates a new connections
         /// </summary>
         /// <param name="conn"></param>
-        public LibvirtConnection(IntPtr conn, LibvirtConfiguration configuration = null)
+        public LibvirtConnection(IntPtr conn)
         {
             if (conn == IntPtr.Zero)
                 throw new LibvirtConnectionException();
 
             ConnectionPtr = conn;
-
-            Configuration = configuration ?? new LibvirtConfiguration();
 
             Node = new LibvirtNode(this);
 
@@ -75,8 +70,6 @@ namespace Libvirt
         {
             this.Dispose();
         }
-
-        public LibvirtConfiguration Configuration { get; private set; }
 
         public LibvirtConnection StartEventLoop()
         {
@@ -606,9 +599,9 @@ namespace Libvirt
         /// </summary>
         /// <param name="conn"></param>
         /// <returns></returns>
-        static public LibvirtConnection Open(string conn = @"qemu:///system", LibvirtConfiguration configuration = null)
+        static public LibvirtConnection Open(string conn = @"qemu:///system")
         {
-            return new LibvirtConnection(NativeVirConnect.Open(conn), configuration);
+            return new LibvirtConnection(NativeVirConnect.Open(conn));
         }
 
         // manually extracted from https://libvirt.org/html/libvirt-libvirt-host.html#virConnectFlags
