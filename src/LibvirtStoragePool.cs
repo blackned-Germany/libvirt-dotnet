@@ -62,12 +62,12 @@ namespace Libvirt
         /// <summary>
         /// True if the domain is currently active (running).
         /// </summary>
-        public bool IsActive { get { return NativeVirStoragePool.IsActive(_poolPtr) == 1;  } }
+        public bool IsActive { get { return NativeVirStoragePool.IsActive(_poolPtr) == 1; } }
 
         /// <summary>
         /// The domains human readable name
         /// </summary>
-        public string Name {  get { return NativeVirStoragePool.GetName(_poolPtr); } }
+        public string Name { get { return NativeVirStoragePool.GetName(_poolPtr); } }
 
         /// <summary>
         /// Get storage pool info
@@ -96,7 +96,7 @@ namespace Libvirt
         /// </summary>
         public string GetPath()
         {
-            switch(DriverType)
+            switch (DriverType)
             {
                 case "dir":
                     var dirNode = XmlDescription.SelectSingleNode("//target");
@@ -132,7 +132,7 @@ namespace Libvirt
                     {
                         if (_xmlDescription == null)
                         {
-                            string xmlText = NativeVirStoragePool.GetXMLDesc(_poolPtr, 
+                            string xmlText = NativeVirStoragePool.GetXMLDesc(_poolPtr,
                                 VirDomainXMLFlags.VIR_DOMAIN_XML_SECURE);
                             if (string.IsNullOrWhiteSpace(xmlText))
                                 throw new LibvirtQueryException();
@@ -155,6 +155,8 @@ namespace Libvirt
         public IEnumerable<LibvirtStorageVolume> ListVolumes()
         {
             int nbVolumes = NativeVirStoragePool.NumOfVolumes(_poolPtr);
+            if (nbVolumes < 0)
+                throw new LibvirtQueryException();
             string[] volumeNames = new string[nbVolumes];
             if (NativeVirStoragePool.ListVolumes(_poolPtr, ref volumeNames, nbVolumes) < 0)
                 throw new LibvirtQueryException();
@@ -165,7 +167,7 @@ namespace Libvirt
                 {
                     string keyString = NativeVirStorageVol.GetKey(volumePtr);
                     if (string.IsNullOrEmpty(keyString))
-                        throw new LibvirtQueryException();
+                        continue;
 
                     yield return _conn.VolumeCache.GetOrAdd(keyString, (id) =>
                     {
@@ -179,7 +181,7 @@ namespace Libvirt
                 }
             }
         }
-        
+
         /// <summary>
         /// Get a volume by name
         /// </summary>
