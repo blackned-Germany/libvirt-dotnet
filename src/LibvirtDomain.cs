@@ -217,37 +217,6 @@ namespace Libvirt
             get { return XmlDescription.DocumentElement.Attributes["type"].Value; }
         }
 
-        /// <summary>
-        /// Determines the time of the ast configuration or state change.
-        /// HACK: Ugly hack which is QEMU and distribution specific. Checks last write on LibvirtConfiguration->QemuDomainRuntimeConfigurationPath/[domain].xml
-        /// </summary>
-        public DateTime ModifiedAt
-        {
-            get
-            {
-                return IsActive
-                    ? File.GetLastWriteTimeUtc(Path.Combine(_conn.Configuration.QemuDomainRunPath, $"{Name}.xml"))
-                    : (
-                        File.Exists(Path.Combine(_conn.Configuration.QemuDomainLogPath, $"{Name}.log"))
-                            ? File.GetLastWriteTimeUtc(Path.Combine(_conn.Configuration.QemuDomainLogPath, $"{Name}.log"))
-                            : File.GetLastWriteTimeUtc(Path.Combine(_conn.Configuration.QemuDomainEtcPath, $"{Name}.xml"))
-                    );
-            }
-        }
-
-        /// <summary>
-        /// Time in seconds since the domain was started
-        /// HACK: Ugly hack which is QEMU and distribution specific. Checks creation date of LibvirtConfiguration->QemuDomainRuntimeConfigurationPath/[domain].pid
-        /// </summary>
-        public double UptimeSeconds
-        {
-            get
-            {
-                return IsActive
-                  ? DateTime.UtcNow.Subtract(File.GetCreationTimeUtc(Path.Combine(_conn.Configuration.QemuDomainRunPath, $"{Name}.pid"))).TotalSeconds
-                  : 0;
-            }
-        }
 
         public VirDomainInfo GetInfo()
         {
