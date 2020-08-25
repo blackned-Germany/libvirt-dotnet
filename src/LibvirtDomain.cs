@@ -22,7 +22,6 @@
  * or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-using Libvirt.Metrics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -30,8 +29,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Xml;
 using System.Xml.Serialization;
@@ -48,7 +45,6 @@ namespace Libvirt
         private XmlDocument _xmlDescription = null;
         private readonly object _xmlDescrLock = new object();
         private VirDomainInfo _virDomainInfo = null;
-        private readonly GuestCpuUtilizationMetric _cpuUtil;
 
         internal LibvirtDomain(LibvirtConnection connection, Guid uniqueId, IntPtr domainPtr)
         {
@@ -59,8 +55,6 @@ namespace Libvirt
             if (domainPtr == IntPtr.Zero)
                 throw new ArgumentNullException("domainPtr");
             _domainPtr = domainPtr;
-            _cpuUtil = new GuestCpuUtilizationMetric(GetInfo().NrVirtCpu);
-            _conn.MetricsTick += OnMetricsTickEvent;
         }
 
         #region Console
@@ -342,73 +336,9 @@ namespace Libvirt
         }
         #endregion
 
-        #region Stats
-        private VirTypedParameter[] _cpuStats = null;
-        private readonly object _statsLock = new object();
-
-        private void OnMetricsTickEvent(object sender, EventArgs e)
-        {
-            //Trace.WriteLine($"MetricsTick on domain {Name} (active={IsActive})");
-
-            if (!IsActive)
-            {
-                _cpuUtil.Update(0, 0, 0);
-                return;
-            }
-
-            lock (_statsLock)
-            {
-                if (_cpuStats == null)
-                {
-                    int nparams = NativeVirDomain.GetCpuStats(_domainPtr, null, 0, -1, 1, 0);
-                    _cpuStats = new VirTypedParameter[nparams];
-                }
-
-                if (NativeVirDomain.GetCpuStats(_domainPtr, _cpuStats, (uint)_cpuStats.Length, -1, 1, 0) < _cpuStats.Length)
-                    return;
-
-                _cpuUtil.Update(
-                    _cpuStats.Where(t => t.Name == "cpu_time" && t.Type == VirTypedParamType.VIR_TYPED_PARAM_ULLONG)
-                        .Select(t => t.Value.ULongValue).First(),
-                    _cpuStats.Where(t => t.Name == "system_time" && t.Type == VirTypedParamType.VIR_TYPED_PARAM_ULLONG)
-                        .Select(t => t.Value.ULongValue).First(),
-                    _cpuStats.Where(t => t.Name == "user_time" && t.Type == VirTypedParamType.VIR_TYPED_PARAM_ULLONG)
-                        .Select(t => t.Value.ULongValue).First());
-            }
-        }
-
-        /// <summary>
-        /// Returns CPU utilization information
-        /// </summary>
-        public GuestCpuUtilizationMetric CpuUtilization => _cpuUtil;
-
-        #endregion
-
         #region Events
         internal void DispatchDomainEvent(VirDomainEventArgs args)
         {
-            if (Thread.VolatileRead(ref _isDisposing) != 0)
-                return;
-
-            switch (args.EventType)
-            {
-                case VirDomainEventType.VIR_DOMAIN_EVENT_SUSPENDED:
-                case VirDomainEventType.VIR_DOMAIN_EVENT_UNDEFINED:
-                case VirDomainEventType.VIR_DOMAIN_EVENT_STOPPED:
-                case VirDomainEventType.VIR_DOMAIN_EVENT_DEFINED:
-                    lock (_xmlDescrLock)
-                        _xmlDescription = null; // Fore re-read of configuration
-                    if (args.EventType == VirDomainEventType.VIR_DOMAIN_EVENT_DEFINED)
-                    {
-                        lock (_statsLock)
-                        {
-                            _cpuStats = null;
-                            _cpuUtil.SetCpuCount(GetInfo().NrVirtCpu);
-                        }
-                    }
-
-                    break;
-            }
         }
         #endregion
 
@@ -499,7 +429,6 @@ namespace Libvirt
                 return;
 
             Trace.WriteLine($"Disposing domain {this.ToString()}.");
-            _conn.MetricsTick -= OnMetricsTickEvent;
 
             if (_domainPtr != IntPtr.Zero)
                 NativeVirDomain.Free(_domainPtr);
