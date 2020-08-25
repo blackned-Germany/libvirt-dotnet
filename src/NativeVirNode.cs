@@ -6,6 +6,7 @@
  * See COPYING.LIB for the License of this software
  */
 
+using Libvirt.Types;
 using System;
 using System.Runtime.InteropServices;
 
@@ -16,7 +17,7 @@ namespace Libvirt
     /// </summary>
     public class NativeVirNode
     {
-		private const int MaxStringLength = 1024;
+        private const int MaxStringLength = 1024;
 
         // TODO virNodeDeviceCreateXML
 
@@ -162,5 +163,35 @@ namespace Libvirt
         /// </returns>
         [DllImport("libvirt-0.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "virNodeNumOfDevices")]
         public static extern int NumOfDevices(IntPtr conn, string cap, uint flags);
+
+        /// <summary>
+        /// This function provides CPU statistics for the node.
+        /// See https://libvirt.org/html/libvirt-libvirt-host.html#virNodeGetCPUStats
+        /// </summary>
+        /// <param name="conn">
+        /// A <see cref="IntPtr"/>pointer to the hypervisor connection.
+        /// </param>
+        /// <param name="cpuNum">number of node cpu. (VIR_NODE_CPU_STATS_ALL_CPUS means (-1) total cpu statistics)</param>
+        /// <param name="@params">node cpu time parameter objects (returned)</param>
+        /// <param name="nparams">number of node cpu time parameter (this value should be same or less than the number of parameters supported)(returned)</param>
+        /// <param name="flags">extra flags; not used yet, so callers should always pass 0</param>
+        /// <returns>-1 in case of error, 0 in case of success.</returns>
+        [DllImport("libvirt-0.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "virNodeGetCPUStats")]
+        public static extern int GetCpuStats(IntPtr conn, int cpuNum, [Out] VirNodeCpuStat[] @params, out int nparams, uint flags);
+
+        /// <summary>
+        /// This function provides memory statistics for the node.
+        /// See https://libvirt.org/html/libvirt-libvirt-host.html#virNodeGetMemoryStats
+        /// </summary>
+        /// <param name="conn">
+        /// A <see cref="IntPtr"/>pointer to the hypervisor connection.
+        /// </param>
+        /// <param name="cellNum">number of node cell. (VIR_NODE_MEMORY_STATS_ALL_CELLS (-1) means total cell statistics)</param>
+        /// <param name="@params">node memory stats objects (returned)</param>
+        /// <param name="nparams">number of node memory stats (this value should be same or less than the number of stats supported)(returned)</param>
+        /// <param name="flags">extra flags; not used yet, so callers should always pass 0</param>
+        /// <returns>-1 in case of error, 0 in case of success.</returns>
+        [DllImport("libvirt-0.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "virNodeGetMemoryStats")]
+        public static extern int GetMemoryStats(IntPtr conn, int cellNum, [Out] VirNodeMemoryStat[] @params, out int nparams, uint flags);
     }
 }
