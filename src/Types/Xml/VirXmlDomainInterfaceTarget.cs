@@ -23,38 +23,22 @@
  * limitations under the License.
  */
 using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace Libvirt
 {
     [Serializable]
-    [XmlRoot(ElementName = "interface", Namespace = "")]
-    public class VirXmlDomainNetInterface
+    [XmlRoot(ElementName = "target", Namespace = "")]
+    public class VirXmlDomainInterfaceTarget
     {
-        [XmlAttribute(AttributeName = "type")]
-        public VirXmlDomainInterfaceType Type { get; set; }
-
-        [XmlElement("mac")]
-        public VirXmlDomainInterfaceMAC MAC { get; set; }
-
-        [XmlElement("source")]
-        public VirXmlDomainInterfaceSource Source { get; set; }
-
-        [XmlElement("model")]
-        public VirXmlDomainInterfaceModel Model { get; set; }
-
-        [XmlElement("target")]
-        public VirXmlDomainInterfaceTarget Target { get; set; }
-
-        [XmlElement("address")]
-        public VirXmlDeviceAddress Address { get; set; }
-
-        [XmlElement("alias")]
-        VirXmlDomainInterfaceAlias Alias { get; set; }
+        [XmlAttribute(AttributeName = "dev")]
+        public string Device { get; set; }
 
         public override string ToString()
         {
-            return $"{Type} {Source} {MAC} ({Address})";
+            return $"Target Device={Device}";
         }
     }
 }
