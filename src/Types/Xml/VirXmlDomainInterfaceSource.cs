@@ -39,8 +39,12 @@ namespace Libvirt
         [XmlAttribute(AttributeName = "bridge")]
         public string Bridge { get; set; }
 
+        [XmlAttribute(AttributeName = "portid")]
+        public string Port { get; set; }
+
         public override string ToString()
         {
+            // return $"{Network}/{Bridge}/{Port}";
             return $"{Network??Bridge}";
         }
     }
